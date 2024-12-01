@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
-import static apiResources.response.TestConstant.*;
+import static constant.TestConstant.*;
 import static io.restassured.RestAssured.given;
 
 public class getPatientDetails {

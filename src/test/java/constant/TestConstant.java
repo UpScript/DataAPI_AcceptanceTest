@@ -1,4 +1,4 @@
-package apiResources.response;
+package constant;
 
 public class TestConstant {
 
