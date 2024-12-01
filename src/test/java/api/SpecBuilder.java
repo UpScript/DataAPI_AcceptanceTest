@@ -5,9 +5,10 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import utils.ConfigLoader;
 
 public class SpecBuilder {
-    /*public static RequestSpecification getRequestSpec(){
+    public static RequestSpecification getRequestSpec(){
         return new RequestSpecBuilder().
                 setBaseUri(ConfigLoader.getInstance().getBaseUrl()).
                 log(LogDetail.ALL).
@@ -18,5 +19,5 @@ public class SpecBuilder {
         return new ResponseSpecBuilder().
                 log(LogDetail.ALL).
                 build();
-    }*/
+    }
 }
