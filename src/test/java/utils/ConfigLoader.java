@@ -26,8 +26,8 @@ public class ConfigLoader {
     }
 
     public String getBaseUrl(){
-        String prop = properties.getProperty("baseUrl");
+        String prop = properties.getProperty("api_url");
         if(prop != null) return prop;
-        else throw new RuntimeException("BASE URL is not found");
+        else throw new RuntimeException("API HOST URL is not found");
     }
 }

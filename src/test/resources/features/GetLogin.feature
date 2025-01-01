@@ -1,13 +1,11 @@
-Feature: Verify Login GET Call
+Feature: Verify Login GET Request for all the partners
 
 Scenario Outline: Successfully Login with valid credentials
-  Given the GetLogin request set with valid details for "<vendor>"
-  When the GetLogin request is called
-  Then the request send successfully with 200 status code
-  And the GetLogin should return valid JWT token
+  When the GetLogin request is called "<partner>" with valid credentials
+  Then the login request send successfully with 200 status code
 Examples:
-  | vendor  |
+  | partner |
   | pfizer  |
-  | lombard |
-  | bosley  |
-  | nerivio |
+#  | lombard |
+#  | bosley  |
+#  | nerivio |

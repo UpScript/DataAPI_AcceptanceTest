@@ -1,12 +1,10 @@
 package configuration;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ClassPathResource;
-
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 
@@ -15,29 +13,31 @@ public class ConfigurationContext {
     private static final Properties properties = new Properties();
     private static final Logger logger = LogManager.getLogger(ConfigurationContext.class);
 
+    private static final String API_URL = "api_url";
 
-    //Configuration Keys
-    private static final String CONFIG_KEY = "ENV"; // THIS WILL TAKEN FROM MAVEN CONFIG -Denv=env_aurora_sit
+    private static final String USER_NAME = "username";
+    private static final String PASSWORD = "password";
 
-    private static final String API_URL = "ui_url"; //this is from environment property files.
+    public static final String HOST_URL = readConfigProperty(API_URL);
 
-    public static final String ENV = readConfigPropertyVar(CONFIG_KEY);
-    public static final String HOST_URL = readConfigPropertyFile(API_URL);
-
+    public static final String AUTH_USERNAME = readConfigProperty(USER_NAME);
+    public static final String AUTH_PASSWORD = readConfigProperty(PASSWORD);
 
 
     private static void loadProperties(){
 
-        Resource propertyFile = new ClassPathResource(ENV + ".properties");
-        try(InputStream inputStream = propertyFile.getInputStream()){
-            properties.load(inputStream);
-        }catch(Exception FileNotFoundException){
-            logger.error("Could not load properties");
+        String env = System.getProperty("env", "qa");
+        String fileName = "src/test/resources/" + env + ".properties";
+
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            properties.load(fis);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load properties file: " + fileName, e);
         }
 
     }
 
-    private static String  readConfigPropertyFile(String key){
+public static String readConfigProperty(String key) {
 
         if(properties.isEmpty()) {
             loadProperties();
@@ -45,17 +45,6 @@ public class ConfigurationContext {
 
         String value = properties.getProperty(key);
 
-        if(value==null){
-            logger.error("");
-            throw new IllegalArgumentException("Couldn't find the configuration property value: "+key);
-        }
-
-        return value;
-    }
-
-    private static String readConfigPropertyVar(String key){
-
-        String value = System.getProperty(key);
         if(value==null){
             logger.error("");
             throw new IllegalArgumentException("Couldn't find the configuration property value: "+key);

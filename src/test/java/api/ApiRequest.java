@@ -8,6 +8,8 @@ import io.restassured.response.Response;
 import java.util.HashMap;
 
 import static io.restassured.RestAssured.given;
+import static utils.SupportMethod.getAuthPassword;
+import static utils.SupportMethod.getAuthUserName;
 
 public class ApiRequest extends SpecBuilder{
 
@@ -34,12 +36,11 @@ public class ApiRequest extends SpecBuilder{
                 response();
     }
 
-    public static Response get(String authUserName, String authPassword, String userName, String password, String endPoint){
-        return given()
-                .auth().basic(authUserName, authPassword)
+    public static Response get(String endPoint, String userName, String password){
+        return given(getRequestSpec())
+                .auth().basic(userName, password)
                 .contentType(ContentType.URLENC)
-                .formParam("username", userName)
-                .formParam("password", password)
+                .header("Content-type", "application/json")
                 .when()
                 .get(endPoint)
                 .then().spec(getResponseSpec()).

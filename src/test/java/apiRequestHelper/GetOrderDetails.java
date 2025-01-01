@@ -1,4 +1,4 @@
-package apiHelper;
+package apiRequestHelper;
 
 import api.ApiRequest;
 import io.restassured.response.Response;
