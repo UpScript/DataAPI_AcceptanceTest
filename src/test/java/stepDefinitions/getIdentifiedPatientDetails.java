@@ -2,13 +2,14 @@ package stepDefinitions;
 
 import apiRequestHelper.GetPatientDetails;
 import context.ScenarioContext;
+import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
+import org.testng.Assert;
 
 import java.util.Map;
 
-import static utils.SupportMethod.GetRandomPatientId;
-import static utils.SupportMethod.splitStringToList;
+import static utils.SupportMethod.*;
 
 public class getIdentifiedPatientDetails {
 
@@ -41,5 +42,17 @@ public class getIdentifiedPatientDetails {
 //
 //        System.out.println("******************************************************************");
 //        System.out.println("Response Data API: "+DataApiResult);
+    }
+
+    @Then("the identified request send successfully with {int} status code")
+    public void the_identified_request_send_successfully_status_code(int statusCode) {
+
+        Assert.assertEquals(response.statusCode(), statusCode);
+    }
+
+    @Then("the identified patient details should be match with deIdentified table data")
+    public void the_identified_patient_details_should_be_match_with_deIdentified_table_data() {
+
+
     }
 }

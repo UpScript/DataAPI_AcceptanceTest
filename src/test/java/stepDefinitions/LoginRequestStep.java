@@ -8,8 +8,8 @@ import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 import org.testng.Assert;
 
-import static utils.SupportMethod.getAuthPassword;
-import static utils.SupportMethod.getAuthUserName;
+import static configuration.CredentialProvider.getPassword;
+import static configuration.CredentialProvider.getUsername;
 
 public class LoginRequestStep {
 
@@ -21,7 +21,7 @@ public class LoginRequestStep {
     @When("the GetLogin request is called {string} with valid credentials")
     public void the_GetLogin_request_is_called(String partner) {
 
-        response = login.getLogin(getAuthUserName(partner), getAuthPassword(partner));
+        response = login.getLogin(getUsername(partner), getPassword(partner));
         scenarioContext.setContext("token", LoginResponse.getLoginResponse(response));
     }
 

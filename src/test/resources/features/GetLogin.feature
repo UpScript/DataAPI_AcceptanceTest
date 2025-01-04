@@ -6,6 +6,6 @@ Scenario Outline: Successfully Login with valid credentials
 Examples:
   | partner |
   | pfizer  |
-#  | lombard |
-#  | bosley  |
-#  | nerivio |
+  | lombard |
+  | bosley  |
+  | nerivio |

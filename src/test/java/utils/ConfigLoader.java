@@ -1,6 +1,7 @@
 package utils;
 
 import constant.EnvType;
+import context.ScenarioContext;
 
 import java.util.Properties;
 
@@ -8,6 +9,7 @@ public class ConfigLoader {
 
     private Properties properties;
     private static ConfigLoader configLoader;
+    ScenarioContext scenarioContext = ScenarioContext.getInstance();
 
     private ConfigLoader(){
         String env = System.getProperty("env", String.valueOf(EnvType.QA));

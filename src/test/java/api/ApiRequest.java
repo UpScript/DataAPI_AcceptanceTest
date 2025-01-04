@@ -8,8 +8,6 @@ import io.restassured.response.Response;
 import java.util.HashMap;
 
 import static io.restassured.RestAssured.given;
-import static utils.SupportMethod.getAuthPassword;
-import static utils.SupportMethod.getAuthUserName;
 
 public class ApiRequest extends SpecBuilder{
 

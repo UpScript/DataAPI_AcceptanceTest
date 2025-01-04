@@ -56,14 +56,14 @@ public class getDeIdentifiedPatientDetails {
     @Then("the deIdentified request send successfully with {int} status code")
     public void the_request_send_successfully_status_code(int statusCode) {
 
-//        Assert.assertEquals(response.statusCode(), statusCode);
+        Assert.assertEquals(response.statusCode(), statusCode);
     }
 
     @Then("the deIdentified patient details should be match with deIdentified table data")
     public void the_deIdentified_patient_details_should_be_match_with_deIdentified_table_data() {
 
-//        long usedPatientId = Long.parseLong(randomPatientId);
-//        int usedCompanyId = Integer.valueOf(patientIdAndCompanyId.get(randomPatientId));
-//        Assert.assertEquals(getPatientDetailsFromDB(usedCompanyId, usedPatientId), DataApiResult);
+        long usedPatientId = Long.parseLong(randomPatientId);
+        int usedCompanyId = Integer.valueOf(patientIdAndCompanyId.get(randomPatientId));
+        Assert.assertEquals(getPatientDetailsFromDB(usedCompanyId, usedPatientId), DataApiResult);
     }
 }

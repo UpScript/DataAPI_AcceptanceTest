@@ -1,5 +1,6 @@
 package utils;
 
+import context.ScenarioContext;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.path.json.JsonPath;
@@ -10,12 +11,14 @@ import org.json.JSONObject;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
-import static configuration.TestConstant.*;
 import static constant.TestConstant.*;
 
 public class SupportMethod {
+
+    ScenarioContext scenarioContext = ScenarioContext.getInstance();
 
     public static Headers getTokenHeader(String jwtToken){
 
@@ -27,26 +30,37 @@ public class SupportMethod {
         return patientId;
     }
 
-    public static String getAuthUserName(String vendor){
+//    public static String getAuthUserName(String vendor){
+//
+//        return switch (vendor) {
+//            case "pfizer" -> PFIZER_AUTH_USERNAME;
+//            case "lombard" -> LOMBARD_AUTH_USERNAME;
+//            case "bosley" -> BOSLEY_AUTH_USERNAME;
+//            case "nerivio" -> NERIVIO_AUTH_USERNAME;
+//            default -> vendor + "NOT FOUND";
+//        };
+//    }
+//
+//    public static String getAuthPassword(String vendor){
+//
+//        return switch (vendor) {
+//            case "pfizer" -> PFIZER_AUTH_PASSWORD;
+//            case "lombard" -> LOMBARD_AUTH_PASSWORD;
+//            case "bosley" -> BOSLEY_AUTH_PASSWORD;
+//            case "nerivio" -> NERIVIO_AUTH_PASSWORD;
+//            default -> vendor + "NOT FOUND";
+//        };
+//    }
 
-        return switch (vendor) {
-            case "pfizer" -> PFIZER_AUTH_USERNAME;
-            case "lombard" -> LOMBARD_AUTH_USERNAME;
-            case "bosley" -> BOSLEY_AUTH_USERNAME;
-            case "nerivio" -> NERIVIO_AUTH_USERNAME;
-            default -> vendor + "NOT FOUND";
-        };
-    }
+    public String getPartnerUserName(String partner){
+        String userName = "";
+        if(Objects.equals(scenarioContext.getContext("token").toString(), "QA")){
 
-    public static String getAuthPassword(String vendor){
+        }else if (Objects.equals(scenarioContext.getContext("token").toString(), "UAT")){
+        }else{
 
-        return switch (vendor) {
-            case "pfizer" -> PFIZER_AUTH_PASSWORD;
-            case "lombard" -> LOMBARD_AUTH_PASSWORD;
-            case "bosley" -> BOSLEY_AUTH_PASSWORD;
-            case "nerivio" -> NERIVIO_AUTH_PASSWORD;
-            default -> vendor + "NOT FOUND";
-        };
+        }
+        return userName;
     }
 
     public static String ExtractIntegers(String input) {
