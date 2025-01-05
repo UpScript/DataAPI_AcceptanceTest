@@ -1,5 +1,6 @@
 package api;
 
+import io.restassured.http.ContentType;
 import io.restassured.http.Cookies;
 import io.restassured.http.Headers;
 import io.restassured.response.Response;
@@ -23,12 +24,24 @@ public class ApiRequest extends SpecBuilder{
                 response();
     }
 
-    public static Response get(String endPoint, Cookies cookies){
+    public static Response get(String endPoint, Headers accessToken){
         return given(getRequestSpec()).
-                cookies(cookies).
+                headers(accessToken).
                 when().
                 get(endPoint).
                 then().spec(getResponseSpec()).
+                extract().
+                response();
+    }
+
+    public static Response get(String endPoint, String userName, String password){
+        return given(getRequestSpec())
+                .auth().basic(userName, password)
+                .contentType(ContentType.URLENC)
+                .header("Content-type", "application/json")
+                .when()
+                .get(endPoint)
+                .then().spec(getResponseSpec()).
                 extract().
                 response();
     }

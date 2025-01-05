@@ -1,6 +1,7 @@
 package utils;
 
 import constant.EnvType;
+import context.ScenarioContext;
 
 import java.util.Properties;
 
@@ -8,6 +9,7 @@ public class ConfigLoader {
 
     private Properties properties;
     private static ConfigLoader configLoader;
+    ScenarioContext scenarioContext = ScenarioContext.getInstance();
 
     private ConfigLoader(){
         String env = System.getProperty("env", String.valueOf(EnvType.QA));
@@ -26,8 +28,8 @@ public class ConfigLoader {
     }
 
     public String getBaseUrl(){
-        String prop = properties.getProperty("baseUrl");
+        String prop = properties.getProperty("api_url");
         if(prop != null) return prop;
-        else throw new RuntimeException("BASE URL is not found");
+        else throw new RuntimeException("API HOST URL is not found");
     }
 }
