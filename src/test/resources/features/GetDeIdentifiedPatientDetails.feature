@@ -2,7 +2,7 @@ Feature: Verify DeIdentified Patient details
 
 Background:
   Given the GetLogin request is called "pfizer" with valid credentials
-
+@dev
 Scenario: Successfully verify the DeIdentified Patient details with valid data
   Given the GET all patient details request is send
   When the GET deIdentified patient details request is send

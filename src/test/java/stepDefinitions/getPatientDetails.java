@@ -19,17 +19,15 @@ public class getPatientDetails {
     GetPatientsDetailsResponse GetPatientsResponse = new GetPatientsDetailsResponse();
 
     @Given("the GET all patient details request is send")
-    public void the_get_all_patient_details_request_is_send() {
+    public void the_get_all_patient_details_request_is_send() throws InterruptedException {
 
         String jwtToken = scenarioContext.getContext("token").toString();
 
         response = GetPatientsList.getPatients(jwtToken);
         String listOfPatientId = GetPatientsResponse.getListOfPatientsIds(response);
+        String listOfCompanyId = GetPatientsResponse.getListOfCompanyIds(response);
         patientIdAndCompanyId = GetPatientsResponse.getPatientAndCompanyIds(response);
         scenarioContext.setContext("listOfPatientList", listOfPatientId);
-
-        System.out.println("******************************************************************");
-        System.out.println("List of Patient ID: " + listOfPatientId);
-        System.out.println("******************************************************************");
+        scenarioContext.setContext("listOfCompanyId", listOfCompanyId);
     }
 }

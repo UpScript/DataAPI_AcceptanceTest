@@ -9,10 +9,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Pattern;
 
 import static constant.TestConstant.*;
 
@@ -29,28 +31,6 @@ public class SupportMethod {
     public static String getPatientId(String patientId){
         return patientId;
     }
-
-//    public static String getAuthUserName(String vendor){
-//
-//        return switch (vendor) {
-//            case "pfizer" -> PFIZER_AUTH_USERNAME;
-//            case "lombard" -> LOMBARD_AUTH_USERNAME;
-//            case "bosley" -> BOSLEY_AUTH_USERNAME;
-//            case "nerivio" -> NERIVIO_AUTH_USERNAME;
-//            default -> vendor + "NOT FOUND";
-//        };
-//    }
-//
-//    public static String getAuthPassword(String vendor){
-//
-//        return switch (vendor) {
-//            case "pfizer" -> PFIZER_AUTH_PASSWORD;
-//            case "lombard" -> LOMBARD_AUTH_PASSWORD;
-//            case "bosley" -> BOSLEY_AUTH_PASSWORD;
-//            case "nerivio" -> NERIVIO_AUTH_PASSWORD;
-//            default -> vendor + "NOT FOUND";
-//        };
-//    }
 
     public String getPartnerUserName(String partner){
         String userName = "";
@@ -133,6 +113,10 @@ public class SupportMethod {
 
 
     public static void compareJSONArrays(JSONArray array1, JSONArray array2) {
+
+        normalizeDatesInJson(array1);
+        normalizeDatesInJson(array2);
+
         if (array1.length() != array2.length()) {
             System.out.println("The arrays have different lengths.");
         } else {
@@ -182,5 +166,134 @@ public class SupportMethod {
                 System.out.println("Extra field in second JSON at path: " + path + "." + key);
             }
         }
+    }
+
+    private static String normalizeDate(String date) {
+        try {
+
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-M-d HH:mm:ss");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date parsedDate = inputFormat.parse(date);
+            return outputFormat.format(parsedDate);
+        } catch (ParseException e) {
+            return date;
+        }
+    }
+
+    private static boolean isDate(String value) {
+        String datePattern = "^(\\d{4})-(\\d{1,2})-(\\d{1,2}) (\\d{2}):(\\d{2}):(\\d{2})$";
+        return Pattern.matches(datePattern, value);
+    }
+
+    private static void normalizeDatesInJson(Object json) {
+        if (json instanceof JSONObject jsonObject) {
+
+            for (String key : jsonObject.keySet()) {
+                Object value = jsonObject.get(key);
+
+                if (value instanceof String && isDate((String) value)) {
+                    jsonObject.put(key, normalizeDate((String) value));
+                }
+                if (value instanceof JSONObject || value instanceof JSONArray) {
+                    normalizeDatesInJson(value);
+                }
+            }
+        } else if (json instanceof JSONArray jsonArray) {
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                normalizeDatesInJson(jsonArray.get(i));
+            }
+        }
+    }
+
+    public static boolean CompareDataAPIResponseAndDBTableData(JSONArray dbTableData, JSONArray dataAPIResponse) {
+
+        normalizeDatesInJson(dbTableData);
+        normalizeDatesInJson(dataAPIResponse);
+
+        System.out.println("Normalized Response Data: " + dataAPIResponse);
+        System.out.println("Normalized DB Data: " + dbTableData);
+
+        if (dbTableData.length() != dataAPIResponse.length()) {
+            return false;
+        }
+
+        JSONArray sortedArray1 = sortJsonArray(dataAPIResponse);
+        JSONArray sortedArray2 = sortJsonArray(dbTableData);
+
+        for (int i = 0; i < sortedArray1.length(); i++) {
+            Object obj1 = sortedArray1.get(i);
+            Object obj2 = sortedArray2.get(i);
+
+            if (!deepEquals(obj1, obj2)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static JSONArray sortJsonArray(JSONArray jsonArray) {
+        List<Object> sortedList = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            Object value = jsonArray.get(i);
+            if (value instanceof JSONObject) {
+                sortedList.add(sortJsonObject((JSONObject) value));
+            } else {
+                sortedList.add(value);
+            }
+        }
+        sortedList.sort(Comparator.comparing(Object::toString));
+        return new JSONArray(sortedList);
+    }
+
+    private static JSONObject sortJsonObject(JSONObject jsonObject) {
+        TreeMap<String, Object> sortedMap = new TreeMap<>();
+        for (String key : jsonObject.keySet()) {
+            Object value = jsonObject.get(key);
+            if (value instanceof JSONObject) {
+                sortedMap.put(key, sortJsonObject((JSONObject) value));
+            } else if (value instanceof JSONArray) {
+                sortedMap.put(key, sortJsonArray((JSONArray) value));
+            } else {
+                sortedMap.put(key, value);
+            }
+        }
+        return new JSONObject(sortedMap);
+    }
+
+    private static boolean deepEquals(Object obj1, Object obj2) {
+        if (obj1 instanceof JSONObject && obj2 instanceof JSONObject) {
+            JSONObject json1 = sortJsonObject((JSONObject) obj1);
+            JSONObject json2 = sortJsonObject((JSONObject) obj2);
+
+            if (json1.keySet().equals(json2.keySet())) {
+                for (String key : json1.keySet()) {
+                    if (!deepEquals(json1.get(key), json2.get(key))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        if (obj1 instanceof JSONArray && obj2 instanceof JSONArray) {
+            JSONArray array1 = sortJsonArray((JSONArray) obj1);
+            JSONArray array2 = sortJsonArray((JSONArray) obj2);
+
+            if (array1.length() != array2.length()) {
+                return false;
+            }
+
+            for (int i = 0; i < array1.length(); i++) {
+                if (!deepEquals(array1.get(i), array2.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return Objects.equals(obj1, obj2);
     }
 }
