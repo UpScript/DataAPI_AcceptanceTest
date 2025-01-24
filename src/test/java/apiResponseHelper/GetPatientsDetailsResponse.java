@@ -10,6 +10,8 @@ import java.util.Map;
 public class GetPatientsDetailsResponse {
 
     JsonPath jsonPath;
+    public static String COMPANY_ID = "";
+    static Map<String, String> patientIdAndCompanyIdDetails = new HashMap<>();
 
     public String getListOfPatientsIds(Response response) {
         jsonPath = response.jsonPath();
@@ -31,9 +33,10 @@ public class GetPatientsDetailsResponse {
         return jsonPath.getList("data.company-id", String.class);
     }
 
-    public Map<String, String> getPatientAndCompanyIds(Response response) {
+    public Map<String, String> getPatientAndCompanyIds(Response response) throws InterruptedException {
 
         Map<String, String> patientIdAndCompanyId = new HashMap<>();
+
         try {
             for (int i = 0; i < getListOfPatients(response).size(); i++) {
                 String patientId = getListOfPatients(response).get(i);
@@ -43,6 +46,14 @@ public class GetPatientsDetailsResponse {
         } catch (ClassCastException e) {
             System.out.println("Type mismatch detected: " + e.getMessage());
         }
+
+        patientIdAndCompanyIdDetails = patientIdAndCompanyId;
+        Thread.sleep(60000);
         return patientIdAndCompanyId;
+    }
+
+    public static String getCompanyId(Response response, String patientId) throws InterruptedException {
+
+        return patientIdAndCompanyIdDetails.get(patientId);
     }
 }
