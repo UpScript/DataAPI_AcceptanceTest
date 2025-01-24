@@ -1,9 +1,12 @@
 package utils;
 
+import configuration.DBConfigManager;
+import configuration.DBCredentials;
 import context.ScenarioContext;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,15 +15,12 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import static constant.TestConstant.*;
-
 public class SupportMethod {
 
-    ScenarioContext scenarioContext = ScenarioContext.getInstance();
+    static ScenarioContext scenarioContext = ScenarioContext.getInstance();
 
     public static Headers getTokenHeader(String jwtToken){
 
@@ -30,6 +30,14 @@ public class SupportMethod {
 
     public static String getPatientId(String patientId){
         return patientId;
+    }
+
+    public static String getOrderId(String orderId){
+        return orderId;
+    }
+
+    public static String getProductId(String productId){
+        return productId;
     }
 
     public String getPartnerUserName(String partner){
@@ -65,7 +73,21 @@ public class SupportMethod {
         }
         Random random = new Random();
         int randomIndex = random.nextInt(patientId.size());
-        return patientId.get(randomIndex);
+        String randomPatientId = patientId.get(randomIndex);
+        System.out.println("Random Patient ID is: " + randomPatientId);
+        return randomPatientId;
+    }
+
+    public static String GetRandomOrderId(List<String> orderId){
+
+        if (orderId == null || orderId.isEmpty()) {
+            throw new IllegalArgumentException("The list cannot be null or empty");
+        }
+        Random random = new Random();
+        int randomIndex = random.nextInt(orderId.size());
+        String randomOrderId = orderId.get(randomIndex);
+        System.out.println("Random Order ID is: " + randomOrderId);
+        return randomOrderId;
     }
 
     public static List<String> splitStringToList(String inputString) {
@@ -81,11 +103,34 @@ public class SupportMethod {
         return resultList;
     }
 
-    private static final String DB_URL = DBURL;
-    private static final String DB_USER = DBUSER;
-    private static final String DB_PASSWORD = DBPASSWORD;
+    private static String DB_URL = "";
+    private static String DB_USER = "";
+    private static String DB_PASSWORD = "";
+
+    static DBConfigManager configManager = new DBConfigManager();
+    public static void setDataBaseCredentials(){
+
+        String partner = scenarioContext.getContext("partner").toString();
+        String env = System.getProperty("env");
+        DBCredentials partner1Credentials = configManager.getCredentials(env, partner);
+
+        if (env == null || env.isEmpty()) {
+            throw new IllegalArgumentException("Environment NOT Specified. Use -Denv=QA/UAT/PROD.");
+        }else{
+            if (Objects.equals(env.toUpperCase(), env)){
+                DB_URL = partner1Credentials.getDbUrl();
+                DB_USER = partner1Credentials.getDbUser();
+                DB_PASSWORD = partner1Credentials.getDbPassword();
+            } else {
+                throw new IllegalArgumentException("Invalid environment specified. Use QA/UAT/PROD.");
+            }
+        }
+    }
 
     public static JSONArray getPatientDetailsFromDB(int companyId, long patientId) {
+
+        setDataBaseCredentials();
+
         JSONArray jsonArrayResult = new JSONArray();
         String procedureCall = "{call sp_da_patients_payload_patient_id(?, ?)}";
 
@@ -103,14 +148,40 @@ public class SupportMethod {
                 jsonArrayResult = new JSONArray(cteJsonString);
             }
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
 
         return jsonArrayResult;
     }
 
+    public static JSONArray getOrderDetailsFromDB(int companyId, long patientId) {
 
+        setDataBaseCredentials();
 
+        JSONArray jsonArrayResult = new JSONArray();
+        String procedureCall = "{call sp_da_orders_payload_by_id(?, ?)}";
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             CallableStatement callableStatement = connection.prepareCall(procedureCall)) {
+
+            callableStatement.setInt(1, companyId);
+            callableStatement.setLong(2, patientId);
+
+            ResultSet resultSet = callableStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String cteJsonString = resultSet.getString("cte_json");
+
+                jsonArrayResult = new JSONArray(cteJsonString);
+            }
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+
+        return jsonArrayResult;
+    }
 
     public static void compareJSONArrays(JSONArray array1, JSONArray array2) {
 
@@ -295,5 +366,41 @@ public class SupportMethod {
         }
 
         return Objects.equals(obj1, obj2);
+    }
+
+
+    public static JSONArray getPatientJsonPathDetails(Response response){
+
+//        JsonPath jsonPath = response.jsonPath();
+//        Map<String, Object> dataMap = jsonPath.getMap("data");
+//        JSONObject dataObject = new JSONObject();
+//        for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+//            dataObject.put(entry.getKey(), entry.getValue() != null ? entry.getValue() : JSONObject.NULL);
+//        }
+//        JSONArray dataArray = new JSONArray();
+//        dataArray.put(dataObject);
+//        return dataArray;
+
+        // Extract the root data map using JsonPath
+        JsonPath jsonPath = response.jsonPath();
+        Map<String, Object> dataMap = jsonPath.getMap("data");
+
+        // Convert the data map to a JSONObject, ensuring null values are included
+        JSONObject jsonObject = new JSONObject();
+        for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+            Object value = entry.getValue();
+            if (value == null || (value instanceof String && ((String) value).isEmpty())) {
+                jsonObject.put(entry.getKey(), JSONObject.NULL);
+            } else {
+                jsonObject.put(entry.getKey(), value);
+            }
+//            jsonObject.put(entry.getKey(), entry.getValue() != null ? entry.getValue() : JSONObject.NULL);
+        }
+
+        // Wrap the JSONObject in a JSONArray
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(jsonObject);
+
+        return jsonArray;
     }
 }

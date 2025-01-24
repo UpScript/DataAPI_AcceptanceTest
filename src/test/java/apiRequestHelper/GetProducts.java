@@ -3,15 +3,15 @@ package apiRequestHelper;
 import api.ApiRequest;
 import io.restassured.response.Response;
 
-import static api.EndPoints.GET_ORDERS;
+import static api.EndPoints.GET_PRODUCTS;
 import static utils.SupportMethod.getTokenHeader;
 
-public class GetOrders {
+public class GetProducts {
 
-    public Response getOrders (String jwtToken){
+    public Response getProducts (String jwtToken){
 
         return ApiRequest.get(
-                GET_ORDERS, getTokenHeader(jwtToken)
+                GET_PRODUCTS, getTokenHeader(jwtToken)
         );
     }
 }

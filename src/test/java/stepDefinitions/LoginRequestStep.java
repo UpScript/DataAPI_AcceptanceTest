@@ -21,6 +21,7 @@ public class LoginRequestStep {
     @When("the GetLogin request is called {string} with valid credentials")
     public void the_GetLogin_request_is_called(String partner) {
 
+        scenarioContext.setContext("partner", partner);
         response = login.getLogin(getUsername(partner), getPassword(partner));
         scenarioContext.setContext("token", LoginResponse.getLoginResponse(response));
     }
