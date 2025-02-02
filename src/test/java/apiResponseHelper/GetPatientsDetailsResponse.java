@@ -38,21 +38,36 @@ public class GetPatientsDetailsResponse {
         Map<String, String> patientIdAndCompanyId = new HashMap<>();
 
         try {
-            for (int i = 0; i < getListOfPatients(response).size(); i++) {
-                String patientId = getListOfPatients(response).get(i);
-                String companyId = getListOfCompanies(response).get(i);
-                patientIdAndCompanyId.put(patientId, companyId);
+
+            List<Map<String, Object>> dataList = response.jsonPath().getList("data");
+
+            for (Map<String, Object> data : dataList) {
+                Object patientIdObj = data.get("patient-patient-id");
+                Object companyIdObj = data.get("company-id");
+
+                String patientId = (patientIdObj != null) ? patientIdObj.toString() : null;
+                String companyId = (companyIdObj != null) ? companyIdObj.toString() : null;
+
+                System.out.println("Extracted patientId: " + patientId);
+                System.out.println("Extracted companyId: " + companyId);
+
+                if (patientId != null && companyId != null) {
+                    patientIdAndCompanyId.put(patientId, companyId);
+                } else {
+                    System.out.println("Skipping entry with null patient or company ID: " + data);
+                }
             }
-        } catch (ClassCastException e) {
-            System.out.println("Type mismatch detected: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
+        System.out.println("Final Map: " + patientIdAndCompanyId);
         patientIdAndCompanyIdDetails = patientIdAndCompanyId;
-        Thread.sleep(60000);
+
         return patientIdAndCompanyId;
     }
 
-    public static String getCompanyId(Response response, String patientId) throws InterruptedException {
+    public static String getCompanyIdForPatient(Response response, String patientId) throws InterruptedException {
 
         return patientIdAndCompanyIdDetails.get(patientId);
     }

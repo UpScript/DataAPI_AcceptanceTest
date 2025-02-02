@@ -9,8 +9,7 @@ import io.restassured.response.Response;
 import org.json.JSONArray;
 import org.testng.Assert;
 
-import static apiResponseHelper.GetPatientsDetailsResponse.COMPANY_ID;
-import static apiResponseHelper.GetPatientsDetailsResponse.getCompanyId;
+import static apiResponseHelper.GetPatientsDetailsResponse.*;
 import static utils.SupportMethod.*;
 
 public class getPatientDetailsById {
@@ -33,8 +32,26 @@ public class getPatientDetailsById {
         DataApiResult = getPatientJsonPathDetails(response);
     }
 
+    @When("the GET GetPatientById patient details request is send with invalid authentication")
+    public void the_GetPatientById_get_patient_details_request_is_send_with_invalid_authentication() {
+
+        response = GetPatientDetailsById.getPatientDetails("433433434", "token");
+    }
+
+    @When("the GET GetPatientById patient details request is send with invalid patient Id")
+    public void the_GetPatientById_get_patient_details_request_is_send_with_invalid_patient_id() {
+
+        response = GetPatientDetailsById.getPatientDetails("323", scenarioContext.getContext("token").toString());
+    }
+
     @Then("the GetPatientById request send successfully with {int} status code")
     public void the_GetPatientById_request_send_successfully_status_code(int statusCode) {
+
+        Assert.assertEquals(response.statusCode(), statusCode);
+    }
+
+    @Then("the GetPatientById request send failed with {int} status code")
+    public void the_GetPatientById_request_send_failed_status_code(int statusCode) {
 
         Assert.assertEquals(response.statusCode(), statusCode);
     }
@@ -43,7 +60,7 @@ public class getPatientDetailsById {
     public void the_patient_details_should_be_match_with_patient_table_data() throws InterruptedException {
 
         long usedPatientId = Long.parseLong(randomPatientId);
-        int usedCompanyId = Integer.parseInt(getCompanyId(response, randomPatientId));
+        int usedCompanyId = Integer.parseInt(getCompanyIdForPatient(response, randomPatientId));
         Assert.assertTrue(CompareDataAPIResponseAndDBTableData(getPatientDetailsFromDB(usedCompanyId, usedPatientId), DataApiResult));
     }
 }

@@ -1,4 +1,4 @@
-
+@regression
 Feature: Verify Product details by Product Id
 
 Scenario Outline: Successfully verify the Product details with valid data

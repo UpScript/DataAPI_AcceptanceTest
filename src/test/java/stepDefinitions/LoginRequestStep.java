@@ -26,8 +26,26 @@ public class LoginRequestStep {
         scenarioContext.setContext("token", LoginResponse.getLoginResponse(response));
     }
 
+    @When("the GetLogin request is called {string} with invalid credentials")
+    public void the_GetLogin_request_is_called_with_invalid_credentials(String partner) {
+
+        response = login.getLogin("userName", "password");
+    }
+
+    @When("the GetLogin request is called {string} with empty credentials")
+    public void the_GetLogin_request_is_called_with_empty_credentials(String partner) {
+
+        response = login.getLogin("", "");
+    }
+
     @Then("the login request send successfully with {int} status code")
     public void the_request_send_successfully_status_code(int statusCode) {
+
+        Assert.assertEquals(response.statusCode(), statusCode);
+    }
+
+    @Then("the login request send failed with {int} status code")
+    public void the_request_send_failed_status_code(int statusCode) {
 
         Assert.assertEquals(response.statusCode(), statusCode);
     }
