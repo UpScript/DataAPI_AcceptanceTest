@@ -12,24 +12,23 @@ pipeline {
     }
 
     stages {
-            stage('Validate Parameters') {
-                steps {
-                    script {
-                        if (!params.GIT_BRANCH?.trim()) {
-                            error("GIT_BRANCH is required and cannot be empty.")
-                        }
-                        if (!params.ENVIRONMENT?.trim()) {
-                            error("ENVIRONMENT is required and must be selected.")
-                        }
-                        if (!params.CUCUMBER_TAGS?.trim()) {
-                            error("CUCUMBER_TAGS is required and must be selected.")
+
+        stage('Validate Parameters') {
+                    steps {
+                        script {
+                            if (!params.GIT_BRANCH?.trim()) {
+                                error("GIT_BRANCH is required and cannot be empty.")
+                            }
+                            if (!params.ENVIRONMENT?.trim()) {
+                                error("ENVIRONMENT is required and must be selected.")
+                            }
+                            if (!params.CUCUMBER_TAGS?.trim()) {
+                                error("CUCUMBER_TAGS is required and must be selected.")
+                            }
                         }
                     }
-                }
-            }
-    }
+        }
 
-    stages {
         stage('Checkout Code') {
             steps {
                 script {
