@@ -5,36 +5,11 @@ pipeline {
         jdk 'JDK 17' // Use the JDK name defined in the Global Tool Configuration
     }
 
-//     parameters {
-//         choice(name: 'GIT_BRANCH', choices: ['main', 'feature-branch'], description: 'Select Git branch')
-//         choice(name: 'ENVIRONMENT', choices: ['QA', 'UAT'], description: 'Select Environment')
-//         choice(name: 'CUCUMBER_TAGS', choices: ['@regression', '@dev', '@smoke'], description: 'Select Cucumber Tags')
-//     }
-
-    properties([
-        parameters([
-            [
-                $class: 'ChoiceParameter',
-                name: 'GIT_BRANCH',
-                description: 'Search and select a Git branch',
-                choiceType: 'PT_SINGLE_SELECT',
-                filterable: true,
-                script: [
-                    $class: 'GroovyScript',
-                    script: [
-                        sandbox: false,
-                        script: '''
-                            def cmd = "git ls-remote --heads https://your-repo-url.git".execute()
-                            def branches = cmd.text.readLines().collect { it.split()[1].replaceAll("refs/heads/", "") }
-                            return branches
-                        '''
-                    ]
-                ]
-            ],
-            choice(name: 'ENVIRONMENT', choices: ['QA', 'UAT'], description: 'Select Environment'),
-            choice(name: 'CUCUMBER_TAGS', choices: ['@regression', '@dev', '@smoke'], description: 'Select Cucumber Tags')
-        ])
-    ])
+    parameters {
+        string(name: 'GIT_BRANCH', choices: ['main', 'feature-branch'], description: 'Select Git branch')
+        choice(name: 'ENVIRONMENT', choices: ['QA', 'UAT'], description: 'Select Environment')
+        choice(name: 'CUCUMBER_TAGS', choices: ['@regression', '@dev', '@smoke'], description: 'Select Cucumber Tags')
+    }
 
     stages {
         stage('Checkout Code') {
