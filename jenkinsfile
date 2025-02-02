@@ -45,5 +45,12 @@ pipeline {
                 ])
             }
         }
+
+        stage('Archive Cucumber Report') {
+            steps {
+                archiveArtifacts allowEmptyArchive: true, artifacts: 'target/cucumber-reports/cucumber.html', followSymlinks: false
+            }
+        }
+
     }
 }
