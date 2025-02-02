@@ -39,7 +39,7 @@ pipeline {
         stage('Publish Cucumber Report') {
             steps {
                 publishHTML(target: [
-                    reportDir: 'target/cucumber-html-reports',
+                    reportDir: 'target/cucumber/cucumber-html-reports',
                     reportFiles: 'report.html',
                     reportName: 'Data API Test Report'
                 ])
