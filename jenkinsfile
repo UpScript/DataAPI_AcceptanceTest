@@ -13,10 +13,11 @@ pipeline {
 
     properties([
         parameters([
-            [$class: 'CascadeChoiceParameter',
+            [
+                $class: 'ChoiceParameter',
                 name: 'GIT_BRANCH',
-                description: 'Select Git Branch',
-                randomName: 'choice-parameter',
+                description: 'Search and select a Git branch',
+                choiceType: 'PT_SINGLE_SELECT',
                 filterable: true,
                 script: [
                     $class: 'GroovyScript',
