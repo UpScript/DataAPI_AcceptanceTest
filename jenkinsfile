@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'GIT_BRANCH', choices: ['main', 'feature-branch'], description: 'Select Git branch')
+        choice(name: 'ENVIRONMENT', choices: ['QA', 'UAT'], description: 'Select Environment')
+        choice(name: 'CUCUMBER_TAGS', choices: ['@regression', '@dev', '@smoke'], description: 'Select Cucumber Tags')
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                script {
+                    git branch: params.GIT_BRANCH, url: 'https://github.com/UpScript/DataAPI_AcceptanceTest.git'
+                }
+            }
+        }
+
+        stage('Run API Tests') {
+            steps {
+                script {
+                    sh "mvn clean test -Dcucumber.filter.tags=${params.CUCUMBER_TAGS} -Denv=${params.ENVIRONMENT}"
+                }
+            }
+        }
+
+        stage('Publish Cucumber Report') {
+            steps {
+                publishHTML(target: [
+                    reportDir: 'target/cucumber-html-reports',
+                    reportFiles: 'report.html',
+                    reportName: 'Data API Test Report'
+                ])
+            }
+        }
+    }
+}

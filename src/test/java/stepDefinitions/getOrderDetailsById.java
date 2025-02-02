@@ -8,7 +8,7 @@ import io.restassured.response.Response;
 import org.json.JSONArray;
 import org.testng.Assert;
 
-import static apiResponseHelper.GetPatientsDetailsResponse.getCompanyId;
+import static apiResponseHelper.GetOrderDetailsResponse.getCompanyIdForOrders;
 import static utils.SupportMethod.*;
 
 public class getOrderDetailsById {
@@ -31,6 +31,17 @@ public class getOrderDetailsById {
         DataApiResult = getPatientJsonPathDetails(response);
     }
 
+    @When("the GET GetOrderById order details request is send with invalid order Id")
+    public void the_GetOrderById_get_order_details_request_is_send_with_invalid_order_Id() {
+
+        response = GetOrderDetailsById.getOrderDetails("345221", scenarioContext.getContext("token").toString());
+    }
+    @When("the GET GetOrderById order details request is send with invalid credentials")
+    public void the_GetOrderById_get_order_details_request_is_send_with_invalid_credentials() {
+
+        response = GetOrderDetailsById.getOrderDetails("345221", "token");
+    }
+
     @Then("the GetOrderById request send successfully with {int} status code")
     public void the_GetPatientById_request_send_successfully_status_code(int statusCode) {
 
@@ -41,7 +52,7 @@ public class getOrderDetailsById {
     public void the_patient_details_should_be_match_with_patient_table_data() throws InterruptedException {
 
         long usedOrderId = Long.parseLong(randomOrderId);
-        int usedCompanyId = Integer.parseInt(getCompanyId(response, randomOrderId));
+        int usedCompanyId = Integer.parseInt(getCompanyIdForOrders(response, randomOrderId));
         Assert.assertTrue(CompareDataAPIResponseAndDBTableData(getOrderDetailsFromDB(usedCompanyId, usedOrderId), DataApiResult));
     }
 }

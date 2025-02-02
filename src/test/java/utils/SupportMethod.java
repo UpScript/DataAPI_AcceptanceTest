@@ -22,30 +22,30 @@ public class SupportMethod {
 
     static ScenarioContext scenarioContext = ScenarioContext.getInstance();
 
-    public static Headers getTokenHeader(String jwtToken){
+    public static Headers getTokenHeader(String jwtToken) {
 
         Header header = new Header("x-access-token", jwtToken);
         return new Headers(header);
     }
 
-    public static String getPatientId(String patientId){
+    public static String getPatientId(String patientId) {
         return patientId;
     }
 
-    public static String getOrderId(String orderId){
+    public static String getOrderId(String orderId) {
         return orderId;
     }
 
-    public static String getProductId(String productId){
+    public static String getProductId(String productId) {
         return productId;
     }
 
-    public String getPartnerUserName(String partner){
+    public String getPartnerUserName(String partner) {
         String userName = "";
-        if(Objects.equals(scenarioContext.getContext("token").toString(), "QA")){
+        if (Objects.equals(scenarioContext.getContext("token").toString(), "QA")) {
 
-        }else if (Objects.equals(scenarioContext.getContext("token").toString(), "UAT")){
-        }else{
+        } else if (Objects.equals(scenarioContext.getContext("token").toString(), "UAT")) {
+        } else {
 
         }
         return userName;
@@ -66,7 +66,7 @@ public class SupportMethod {
         return jsonPath.getString(fieldName);
     }
 
-    public static String GetRandomPatientId(List<String> patientId){
+    public static String GetRandomPatientId(List<String> patientId) {
 
         if (patientId == null || patientId.isEmpty()) {
             throw new IllegalArgumentException("The list cannot be null or empty");
@@ -78,7 +78,7 @@ public class SupportMethod {
         return randomPatientId;
     }
 
-    public static String GetRandomOrderId(List<String> orderId){
+    public static String GetRandomOrderId(List<String> orderId) {
 
         if (orderId == null || orderId.isEmpty()) {
             throw new IllegalArgumentException("The list cannot be null or empty");
@@ -86,6 +86,18 @@ public class SupportMethod {
         Random random = new Random();
         int randomIndex = random.nextInt(orderId.size());
         String randomOrderId = orderId.get(randomIndex);
+        System.out.println("Random Order ID is: " + randomOrderId);
+        return randomOrderId;
+    }
+
+    public static String GetRandomProductId(List<String> productId) {
+
+        if (productId == null || productId.isEmpty()) {
+            throw new IllegalArgumentException("The list cannot be null or empty");
+        }
+        Random random = new Random();
+        int randomIndex = random.nextInt(productId.size());
+        String randomOrderId = productId.get(randomIndex);
         System.out.println("Random Order ID is: " + randomOrderId);
         return randomOrderId;
     }
@@ -108,7 +120,8 @@ public class SupportMethod {
     private static String DB_PASSWORD = "";
 
     static DBConfigManager configManager = new DBConfigManager();
-    public static void setDataBaseCredentials(){
+
+    public static void setDataBaseCredentials() {
 
         String partner = scenarioContext.getContext("partner").toString();
         String env = System.getProperty("env");
@@ -116,8 +129,8 @@ public class SupportMethod {
 
         if (env == null || env.isEmpty()) {
             throw new IllegalArgumentException("Environment NOT Specified. Use -Denv=QA/UAT/PROD.");
-        }else{
-            if (Objects.equals(env.toUpperCase(), env)){
+        } else {
+            if (Objects.equals(env.toUpperCase(), env)) {
                 DB_URL = partner1Credentials.getDbUrl();
                 DB_USER = partner1Credentials.getDbUser();
                 DB_PASSWORD = partner1Credentials.getDbPassword();
@@ -155,7 +168,7 @@ public class SupportMethod {
         return jsonArrayResult;
     }
 
-    public static JSONArray getOrderDetailsFromDB(int companyId, long patientId) {
+    public static JSONArray getOrderDetailsFromDB(int companyId, long orderId) {
 
         setDataBaseCredentials();
 
@@ -166,7 +179,7 @@ public class SupportMethod {
              CallableStatement callableStatement = connection.prepareCall(procedureCall)) {
 
             callableStatement.setInt(1, companyId);
-            callableStatement.setLong(2, patientId);
+            callableStatement.setLong(2, orderId);
 
             ResultSet resultSet = callableStatement.executeQuery();
 
@@ -369,37 +382,54 @@ public class SupportMethod {
     }
 
 
-    public static JSONArray getPatientJsonPathDetails(Response response){
+    public static JSONArray getPatientJsonPathDetails(Response response) {
 
-//        JsonPath jsonPath = response.jsonPath();
-//        Map<String, Object> dataMap = jsonPath.getMap("data");
-//        JSONObject dataObject = new JSONObject();
-//        for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
-//            dataObject.put(entry.getKey(), entry.getValue() != null ? entry.getValue() : JSONObject.NULL);
-//        }
-//        JSONArray dataArray = new JSONArray();
-//        dataArray.put(dataObject);
-//        return dataArray;
-
-        // Extract the root data map using JsonPath
         JsonPath jsonPath = response.jsonPath();
         Map<String, Object> dataMap = jsonPath.getMap("data");
 
-        // Convert the data map to a JSONObject, ensuring null values are included
+        JSONObject jsonObject = mapToJsonObject(dataMap);
+
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(jsonObject);
+
+        return jsonArray;
+    }
+
+    private static JSONObject mapToJsonObject(Map<String, Object> dataMap) {
         JSONObject jsonObject = new JSONObject();
+
         for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
             Object value = entry.getValue();
-            if (value == null || (value instanceof String && ((String) value).isEmpty())) {
+
+            if (value == null) {
                 jsonObject.put(entry.getKey(), JSONObject.NULL);
+            } else if (value instanceof String && ((String) value).isEmpty()) {
+                jsonObject.put(entry.getKey(), JSONObject.NULL);
+            } else if (value instanceof Map) {
+                jsonObject.put(entry.getKey(), mapToJsonObject((Map<String, Object>) value));
+            } else if (value instanceof List) {
+                JSONArray jsonArray = listToJsonArray((List<Object>) value);
+                jsonObject.put(entry.getKey(), jsonArray);
             } else {
                 jsonObject.put(entry.getKey(), value);
             }
-//            jsonObject.put(entry.getKey(), entry.getValue() != null ? entry.getValue() : JSONObject.NULL);
         }
 
-        // Wrap the JSONObject in a JSONArray
+        return jsonObject;
+    }
+
+    private static JSONArray listToJsonArray(List<Object> list) {
         JSONArray jsonArray = new JSONArray();
-        jsonArray.put(jsonObject);
+
+        for (Object item : list) {
+            if (item instanceof Map) {
+                jsonArray.put(mapToJsonObject((Map<String, Object>) item));
+            } else if (item == null) {
+                jsonArray.put(JSONObject.NULL);
+            } else {
+                jsonArray.put(item);
+            }
+        }
 
         return jsonArray;
     }

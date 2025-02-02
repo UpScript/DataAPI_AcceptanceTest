@@ -9,15 +9,10 @@ public class Login {
 
     public Response getLogin (String username, String password){
 
-        Response response = ApiRequest.get(
+        return ApiRequest.get(
                 GET_LOGIN,
                 username,
                 password
         );
-        if(response.getStatusCode() != 200){
-            throw new RuntimeException("Failed to LogIn" +
-                    ", HTTP Status Code: " + response.getStatusCode());
-        }
-        return response;
     }
 }

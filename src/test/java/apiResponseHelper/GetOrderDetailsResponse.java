@@ -38,21 +38,36 @@ public class GetOrderDetailsResponse {
         Map<String, String> orderIdAndCompanyId = new HashMap<>();
 
         try {
-            for (int i = 0; i < getListOfOrders(response).size(); i++) {
-                String patientId = getListOfOrders(response).get(i);
-                String companyId = getListOfCompanies(response).get(i);
-                orderIdAndCompanyId.put(patientId, companyId);
+
+            List<Map<String, Object>> dataList = response.jsonPath().getList("data");
+
+            for (Map<String, Object> data : dataList) {
+                Object orderIdObj = data.get("ush-order-id");
+                Object companyIdObj = data.get("product-storefront");
+
+                String orderId = (orderIdObj != null) ? orderIdObj.toString() : null;
+                String companyId = (companyIdObj != null) ? companyIdObj.toString() : null;
+
+                System.out.println("Extracted orderId: " + orderId);
+                System.out.println("Extracted companyId: " + companyId);
+
+                if (orderId != null && companyId != null) {
+                    orderIdAndCompanyId.put(orderId, companyId);
+                } else {
+                    System.out.println("Skipping entry with null patient or company ID: " + data);
+                }
             }
-        } catch (ClassCastException e) {
-            System.out.println("Type mismatch detected: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
+        System.out.println("Final Map: " + orderIdAndCompanyId);
+
         OrderIdAndCompanyIdDetails = orderIdAndCompanyId;
-        Thread.sleep(60000);
         return orderIdAndCompanyId;
     }
 
-    public static String getCompanyId(Response response, String patientId) throws InterruptedException {
+    public static String getCompanyIdForOrders(Response response, String patientId) throws InterruptedException {
 
         return OrderIdAndCompanyIdDetails.get(patientId);
     }
