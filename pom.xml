@@ -98,4 +98,29 @@
 
     </dependencies>
 
+    <build>
+
+        <plugins>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+                <version>5.0.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-cucumber-html-reports</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/cucumber-html-reports</outputDirectory>
+                            <jsonFiles>${project.build.directory}/cucumber-reports/cucumber.json</jsonFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+    </build>
 </project>
