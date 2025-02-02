@@ -16,6 +16,14 @@ pipeline {
             }
         }
 
+        stage('Verify Jenkinsfile Exists') {
+            steps {
+                script {
+                    sh "ls -l Jenkinsfile || echo 'Jenkinsfile not found!'"
+                }
+            }
+        }
+
         stage('Run API Tests') {
             steps {
                 script {
