@@ -6,7 +6,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'GIT_BRANCH', choices: ['main', 'feature-branch'], description: 'Select Git branch')
+        string(name: 'GIT_BRANCH', description: 'Select Git branch')
         choice(name: 'ENVIRONMENT', choices: ['QA', 'UAT'], description: 'Select Environment')
         choice(name: 'CUCUMBER_TAGS', choices: ['@regression', '@dev', '@smoke'], description: 'Select Cucumber Tags')
     }
