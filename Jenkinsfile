@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'JDK 13' // Use the JDK name defined in the Global Tool Configuration
-    }
-
     parameters {
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Select Git branch')
         choice(name: 'ENVIRONMENT', choices: ['QA', 'UAT'], description: 'Select Environment')
