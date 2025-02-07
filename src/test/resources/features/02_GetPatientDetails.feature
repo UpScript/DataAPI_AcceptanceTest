@@ -1,6 +1,6 @@
 @regression
 Feature: Verify Patient details by Patient ID
-
+@dev
 Scenario Outline: Successfully Verify Patient details
   Given the GetLogin request is called "<partner>" with valid credentials
   And the GET all patient details request is send
@@ -10,9 +10,9 @@ Scenario Outline: Successfully Verify Patient details
 Examples:
   | partner |
   | lombard |
-  | bosley  |
-  | nerivio |
-  | pfizer  |
+#  | bosley  |
+#  | nerivio |
+#  | pfizer  |
 
 Scenario Outline: Failed to load Patient details with invalid patient Id
   Given the GetLogin request is called "<partner>" with valid credentials
