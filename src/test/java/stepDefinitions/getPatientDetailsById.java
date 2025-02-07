@@ -61,6 +61,7 @@ public class getPatientDetailsById {
 
         long usedPatientId = Long.parseLong(randomPatientId);
         int usedCompanyId = Integer.parseInt(getCompanyIdForPatient(response, randomPatientId));
+        System.out.println(" ******************************:"+getPatientDetailsFromDB(usedCompanyId, usedPatientId));
         Assert.assertTrue(CompareDataAPIResponseAndDBTableData(getPatientDetailsFromDB(usedCompanyId, usedPatientId), DataApiResult));
     }
 }
