@@ -62,11 +62,14 @@ pipeline {
             }
         }
 
-        stage('Archive Cucumber Report') {
-            steps {
-                archiveArtifacts allowEmptyArchive: true, artifacts: 'target/cucumber-reports/cucumber.html', followSymlinks: false
+    stage('Archive Cucumber Report') {
+        steps {
+            script {
+                sh "ls -l target/cucumber-reports"
             }
-        }
+        archiveArtifacts allowEmptyArchive: true, artifacts: 'target/cucumber-reports/cucumber.html', followSymlinks: false
+    }
+}
 
     }
 }
