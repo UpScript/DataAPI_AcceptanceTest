@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'
+        jdk 'JDK 17'
     }
     parameters {
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Select Git branch')
